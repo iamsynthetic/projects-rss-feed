@@ -1,13 +1,26 @@
 <template>
    <div>
       <p>feed list</p>
+      
       <div v-for="item in items" :key="item">
         <div v-if="isdata = false">
           <div @click="sendNewURL(item)">{{item}}</div>
         </div>
+
         <div class="feedlist-item" @click="sendNewURL(item.url)" v-else>
-          <div class="title">{{item.title}}</div>
-          <div class="amount">{{item.amount}}</div>
+          <ul>
+            <li class="feedlist-item-groupname">
+              {{item.groupname}}
+            </li>
+            <ul>
+              <li>
+                <div class="feedlist-item-content">
+                  <div class="title">{{item.title}}</div>
+                  <div class="amount">{{item.amount}}</div>
+                </div>
+              </li>
+            </ul>
+          </ul>
         </div>
       </div>
    </div>
@@ -25,6 +38,7 @@ export default {
       items: [],
       rssUrl: "",
       sanitizedRssURL: '',
+      groupname: "",
       isData: true
     }
   },
@@ -32,45 +46,40 @@ export default {
     this.savedURLlist = this.$store.state.savedURLS;
   },
   computed: {
-    ...mapState(['modalNewRssURL','savedURLS'])
+    ...mapState(['modalNewRssURL','modalNewRssURLGroupName','savedURLS'])
   },
   watch: {
     savedURLS(newValue, oldValue){
-      console.log(`updating from ${oldValue} to ${newValue}`);
       this.savedURLlist = newValue;
     },
     modalNewRssURL(newValue, oldValue){
-      console.log(`updating CHANGE_RSS_URL from ${oldValue} to ${newValue}`)
+      console.log(`updating modalnewrssurl from ${oldValue} to ${newValue}`);
       this.rssUrl = newValue;
       this.sanitizedRssURL = newValue.replace('https://api.allorigins.win/get?url=', '')
-      this.getRss();
+      this.getRss(); 
+    },
+    modalNewRssURLGroupName(newValue, oldValue){
+      if(newValue == ''){
+        this.groupname = 'favorites'
+      }
+      else{
+        this.groupname = newValue
+      }
     }
   },
   methods:{
     
-    // themouseover(e){  
-    //   console.log('mouseover')
-
-    // },
-
-    // themouseleave(e){
-    //   console.log('mouseleave')
-    // },
-
     sendNewURL(theURL){
-      console.log('sendNewURL - ' + theURL)
       this.$store.dispatch('changeRssURL', theURL)
     },
     async getRss() {
       //this.items = [];
-
       const res = await fetch(
         `${this.rssUrl}`
       )
       const { contents } = await res.json();
       const feed = new window.DOMParser().parseFromString(contents, "text/xml");
       const items = feed.querySelectorAll("item");
-      //console.log('items is: ' + items);
 
       if(items.length == 0 || items.length == null || items.length < 1){
         this.isdata = false;
@@ -79,34 +88,45 @@ export default {
         this.isdata = true;
         //this works, gets the title from the channel node
         const channeltitle = feed.querySelector('channel').querySelector('title').innerHTML;
-        //console.log('channeltitle is: ' + channeltitle);
-        //console.log('amount of articles is: ' + items.length);
         
         let dataobj = {
-          'title': channeltitle,
-          'amount': items.length,
-          'url': this.sanitizedRssURL
+          'groupname': this.groupname,
+          groupdetails: {
+            'title': channeltitle,
+            'amount': items.length,
+            'url': this.sanitizedRssURL
+          }
         }
 
-        this.items.push(dataobj);
-        
-        for(let i = 0; i < this.items.length; i++){
-          console.log('in loop title is: ' + this.items[i].title)
-          console.log('in loop amount is: ' + this.items[i].amount)
-          console.log('in loop url is: ' + this.items[i].url)
+        let i = 0;
+        while(i < this.items.length){
+          
+          if(this.items[i].groupname === this.groupname){
+            //this is working
+            let groupdetails = {
+              "title": channeltitle,
+              "amount": items.length,
+              "url": this.sanitizedRssURL
+            }
+            
+            this.items[i]['groupdetails' + 2] = groupdetails;
+            
+            /*
+            console.log('----- ' + this.items[i])
+            console.log('items.length is: ' + this.items.length)
+            console.log('how many sub objects ' + Object.keys(this.items[i]).length)
+            console.log('what is going on?')
+            */
+            break;
+          }
+          else{
+            i++
+            console.log('i is: ' + i)
+          }
         }
-        /*
-        let dataobj = {
-          "title": thetitle,
-          "img": theimgurl,
-          "description": thedescription,
-          "link": thelink
-        }*/
-        // for(let i=0; i<items.length;i++){
-        //   let checktitle = items[i].querySelectorAll('title')[0].innerHTML;
-        //   let checkdescription = items[i].querySelectorAll('description')[0].innerHTML;
-        //   let checklink = items[i].querySelectorAll('link')[0].innerHTML;
-        // }
+        
+        this.items.push(dataobj);
+        //console.log('OUTSIDE OF LOOP: ' + JSON.stringify(this.items));
       }
     }
   }
@@ -115,24 +135,42 @@ export default {
 
 <style>
 
-.feedlist-item:hover{
+.feedlist-item-groupname:hover{
   background: #F5C6E1;
   cursor:pointer;
 }
 
+ul{
+  padding:0;
+}
+ul li {
+  list-style-type: none;
+}
+
 .feedlist-item{
-  display:flex;
   font-size:14px;
   text-align:left;
   cursor:pointer;
 }
 
-.feedlist-item .title{
-  flex:1;
-  margin-left:50px;
+.feedlist-item-groupname{
+  list-style-type: none;
+  padding-left:15px;
 }
 
-.feedlist-item .amount{
+.feedlist-item-content{
+  display:flex;
+  padding-top:5px;
+}
+
+.feedlist-item-content .title{
+  flex:1;
+  margin-left:35px;
+  list-style-type: none
+}
+
+.feedlist-item-content .amount{
   margin-right:30px;
+  list-style-type: none
 }
 </style>

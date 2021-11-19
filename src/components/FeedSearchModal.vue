@@ -1,8 +1,28 @@
 <template>
   <div class="feed-modal">
-    <p>Feed Search Modal</p>
-    <input v-model="theURL" />
-    <input type="submit" @click="saveAndChangeNewURL(theURL)"/>
+
+
+    <div class="feed-list" v-show="showfeedlist">
+      <p>Feed Search Modal</p>
+      <input v-model="theURL" />
+      <input type="submit" @click="saveAndChangeNewURL()"/>
+      <div class="group-list">
+        <!--{{ list }}-->
+      </div>
+      <div class="create-group-btn">
+        <div class="plusbtn" @click="showHideGroups(false, true)">+ new group</div>
+      </div>
+    </div>
+
+
+    <div class="feed-create" v-show="showfeedcreate">
+      <p>new feed name</p>
+      <input v-model="newFeedName" />
+      <div @click="saveAndChangeNewURL()">create group</div>
+      <div @click="showHideGroups(true, false)">cancel</div>
+    </div>
+
+
   </div>
 </template>
 
@@ -13,14 +33,27 @@ export default {
   data(){
     return{
       theURL: "",
-      allURLS: []
+      allURLS: [],
+      newFeedName: 'favorites',
+      showfeedlist: true,
+      showfeedcreate: false
     }
   },
   methods:{
-    saveAndChangeNewURL(theURL){
-      this.allURLS.push(theURL);
+    saveAndChangeNewURL(){
+      let dataobj = {
+        'groupname': this.newFeedName,
+        'url': this.theURL
+      }
+      
+      this.allURLS.push(this.theURL);
       this.$store.dispatch('saveURL', this.allURLS)
-      this.$store.dispatch('changeModalRssURL', theURL)
+      this.$store.dispatch('changeModalRssURL', dataobj)
+    },
+    showHideGroups(feedlist, feedcreate){
+
+      this.showfeedlist = feedlist;
+      this.showfeedcreate = feedcreate;
     }
   }
 }
