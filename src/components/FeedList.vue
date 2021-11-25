@@ -46,7 +46,9 @@ export default {
       rssUrl: "",
       sanitizedRssURL: '',
       groupname: "",
-      isData: true
+      isData: true,
+      i: 0,
+      count: 0
     }
   },
   mounted(){
@@ -114,51 +116,82 @@ export default {
               url: this.sanitizedRssURL
             }
           }
-          console.log('------ A ' + JSON.stringify(thefeed))
-          console.log('------ B ' + JSON.stringify(thefeed.feeddata))
+          //console.log('------ A ' + JSON.stringify(thefeed))
+          //console.log('------ B ' + JSON.stringify(thefeed.feeddata))
           this.items.push(thefeed)
-          console.log('------ C - items.thefeed is : ' +  JSON.stringify(this.items[0].feeddata));
+          //console.log('------ C - items.thefeed is : ' +  JSON.stringify(this.items[0].feeddata));
           this.items[0].feeddata['data0'] = data0;
-          console.log('------ D - items.thefeed is : ' +  JSON.stringify(this.items[0].feeddata));
-          console.log('------ E - items json.stringified is: ' + JSON.stringify(this.items[0].feeddata['data0']));
-          console.log('------ F - items is now: ' + JSON.stringify(this.items))
-          console.log('------ G - length of feeddata: ' + _.size(this.items[0].feeddata));
+          //console.log('------ D - items.thefeed is : ' +  JSON.stringify(this.items[0].feeddata));
+          //console.log('------ E - items json.stringified is: ' + JSON.stringify(this.items[0].feeddata['data0']));
+          //console.log('------ F - items is now: ' + JSON.stringify(this.items))
+          //console.log('------ G - length of feeddata: ' + _.size(this.items[0].feeddata));
+        } 
+        else {
         
-        }
-        
-        let i = 0;
-        console.log('this is working')
-        while(i < _.size(this.items[0].feeddata)){
-          
-          if(this.items[0].feeddata['data' + i].groupname === this.groupname){
-            console.log('groupname for this.items[0] etc is: ' + this.items[0].feeddata['data' + i].groupname)
-            let groupdetails = {
-              title: channeltitle,
-              amount: items.length,
-              url: this.sanitizedRssURL
-            }
+          //console.log('this is working')
+          while(this.i < _.size(this.items[0].feeddata)){
+            this.count++;
+            console.log('count is: ' + this.count);
+            //console.log('********* _.size(this.items[0].feeddata is: ' + _.size(this.items[0].feeddata))
+            console.log('this.i is: ' + this.i);
+            console.log('length of feeddata is: '+ _.size(this.items[0].feeddata))
+            //console.log("$$$$$$$ this.count is: " + this.count)
+            //console.log(typeof(this.count))
             
-            this.items[0].feeddata['data' +i]['groupdetails'+i] = groupdetails;
-            console.log('------ H - length of feeddata: ' + _.size(this.items[0].feeddata));
-            console.log('------ I - length of feeddata groupdetails: ' + _.size(this.items[0].feeddata['data' + i]));
-            break;
-          }
-          else{
-            let dataobj = {
-              groupname: this.groupname,
-              groupdetails0: {
+            
+            if(this.items[0].feeddata['data' +this.i].groupname === this.groupname){
+              console.log('first if statement')
+              console.log("this.items[0].feeddata['data' +this.i].groupname is: " + this.items[0].feeddata['data' +this.i].groupname)
+              console.log('this.groupname is: ' + this.groupname)
+              let groupdetails = {
                 title: channeltitle,
                 amount: items.length,
                 url: this.sanitizedRssURL
               }
+              
+              console.log('match - this.i is: ' + this.i)
+              //console.log(this.i+1)
+
+              this.items[0].feeddata['data' + this.i]['groupdetails' + this.i] = groupdetails;
+              console.log("this.items[0].feeddata['data' + this.i]['groupdetails' + temp_i] is: " + this.items[0].feeddata['data' + this.i]['groupdetails' + temp_i])
+              //this.count = (_.size(this.items[0].feedback))
+              //console.log('count is: ' + this.count);
+              //console.log(typeof(this.count))
+              
+            // if((_.size(this.items[0].feedback)-1) < 0){
+            //   blah_minus = _.size(this.items[0].feedback)
+            // }
+            // else{
+            //    blah_minus = (_.size(this.items[0].feedback)-1)
+            // }
+              //this.i++
+              console.log('this.i in else is: ' + this.i)
+              break;
             }
-            console.log('still working')
-            this.items[0].feeddata['data' + i] = dataobj
-            i++
-            console.log('i is: ' + i)
-            
+            else{
+              console.log('--**** 000 --- groupanme is different ' + this.groupname)
+              //this.count++;
+
+              let dataobj = {
+                groupname: this.groupname,
+                groupdetails0: {
+                  title: channeltitle,
+                  amount: items.length,
+                  url: this.sanitizedRssURL
+                }
+              }
+              let counter =  _.size(this.items[0].feeddata)
+              console.log('counter is: ' + counter);
+              //console.log('still working')
+              this.items[0].feeddata['data' + counter] = dataobj
+              //this.i++
+              console.log('this.i in else is: ' + this.i)
+              break;
+              
+            }
           }
         }
+        console.log('------ G - length of feeddata: ' + _.size(this.items[0].feeddata));
         
         console.log('OUTSIDE OF LOOP - items: ' + JSON.stringify(this.items));
       }
