@@ -12,7 +12,6 @@
 </template>
 
 <script>
-//import { mapState, mapActions } from "vuex";
 
 export default {
   data() {
@@ -22,28 +21,15 @@ export default {
     };
   },
   computed: {
-      //...mapState(['newRssURL'])
 
   },
   watch:{
-    // newRssURL(newValue, oldValue){
-    //   console.log(`updating from ${oldValue} to ${newValue}`);
-
-    //   this.sendNewURL(newValue)
-    // }
   },
   methods: {
-    //...mapActions(['changeRssURL']),
 
     sendNewURL(theURL){
-      console.log('sendNewURL - ' + theURL)
       this.rssURL = ""
       this.$store.dispatch('changeRssURL', theURL)
-      //   this.changeRssURL(theURL)
-      //   //this.$router.push('/')
-      //this.$store.commit('CHANGE_RSS_URL')
-      // //console.log(this.$store.state.num);
-      // //console.log(this.$store.state.newRssURL)
     }
   }
 }

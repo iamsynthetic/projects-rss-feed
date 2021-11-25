@@ -12,7 +12,6 @@
 </template>
 
 <script>
-// @ is an alias to /src
   import mainmenu from '../components/MainMenu.vue'
   import rssfeedsearch from '../components/RssFeed.vue'
   import feedoutput from '../components/FeedOutput.vue'
@@ -42,15 +41,11 @@ export default {
         else{
           this.componentkey = 0;
         }
-        //this.componentkey++;
         console.log('componentkey is: ' + this.componentkey);
       }
     }
   },
   methods:{
-    forcererender(){
-      this.componentkey++;
-    }
   }
 }
 </script>

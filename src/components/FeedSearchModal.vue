@@ -1,7 +1,6 @@
 <template>
   <div class="feed-modal">
 
-
     <div class="feed-list" v-show="showfeedlist">
       <p>Feed Search Modal</p>
       <input v-model="theURL" />
@@ -13,7 +12,6 @@
         <div class="plusbtn" @click="showHideGroups(false, true)">+ new group</div>
       </div>
     </div>
-
 
     <div class="feed-create" v-show="showfeedcreate">
       <p>new feed name</p>
@@ -51,7 +49,6 @@ export default {
       this.$store.dispatch('changeModalRssURL', dataobj)
     },
     showHideGroups(feedlist, feedcreate){
-
       this.showfeedlist = feedlist;
       this.showfeedcreate = feedcreate;
     }

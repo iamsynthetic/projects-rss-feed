@@ -54,52 +54,32 @@ export default {
   },
   watch:{
     newRssURL(newValue, oldValue){
-      console.log(`updating from ${oldValue} to ${newValue}`);
-      
-      //console.log('newrssurl is: ' + this.blah());
-      //console.log('store num is: ' + this.$store.state.num)
-      //console.log('store newRssURL is: ' + this.$store.state.newRssURL)
-      //this.searchUnsplash(newValue)
-      
+      //console.log(`updating from ${oldValue} to ${newValue}`);
+      console.log('newrssurl newvalue is: ' + newValue)
       this.rssUrl = newValue;
       this.getRss();
-      //this.blah2()
     }
   },
   methods: {
     
     checkSearchterm(){
       if(this.newRssURL == ''){
-        // this.searchUnsplash(this.defaultsearchterm)
-        // this.currentsearchterm = this.defaultsearchterm;
-        //do nothing for now
       }
       else
       {
-        //this.searchUnsplash(this.searchterm)
-        //this.currentsearchterm = this.searchterm;
-        //call the getrss function
         this.rssUrl = this.newRssURL;
         this.getRss();
       }  
     },
     async getRss() {
-      // const urlRegex = /(http|ftp|https)://[\w-]+(.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?/;
-      // if (!urlRegex.test(this.rssUrl)) {
-      //   return;
-      // }
       this.items = [];
-      //console.log('getRSS');
-      //console.log('rssUrl is: ' + this.rssUrl);
 
       const res = await fetch(
-        //`https://api.allorigins.win/get?url=${this.rssUrl}`
         `${this.rssUrl}`
       )
       const { contents } = await res.json();
       const feed = new window.DOMParser().parseFromString(contents, "text/xml");
       const items = feed.querySelectorAll("item");
-      console.log('items is: ' + items);
 
       if(items.length == 0 || items.length == null || items.length < 1){
         this.isdata = false;
@@ -115,7 +95,6 @@ export default {
             if(checkdescription != null){
               if(checklink != null){
                 if(i == items.length-1){
-                  // this.sanitizeFunc(items);
                   this.setupNewArray(items);
                 }
               }
@@ -124,30 +103,9 @@ export default {
         }
       } 
     },
-    // sanitizeFunc(allitems){
-      
-    //   this.items = [...allitems].map((el) => ({
-        
-    //     link: el.querySelector("link").innerHTML
-    //       .trim().replace(/^(\/\/\s*)?<!\[CDATA\[|(\/\/\s*)?\]\]>$/g, ''),
-          
-    //     title: el.querySelector("title").innerHTML
-    //       .trim().replace(/^(\/\/\s*)?<!\[CDATA\[|(\/\/\s*)?\]\]>$/g, '')
-    //       .replaceAll('&#038;', '&')
-    //       .replaceAll('&amp;', '&')
-    //       .replaceAll("&#039;", "'"),
-        
-    //     description: el.querySelector("description").innerHTML
-    //       .trim().replace(/^(\/\/\s*)?<!\[CDATA\[|(\/\/\s*)?\]\]>$/g, '')
-    //       .replaceAll('&#038;', '&')
-    //       .replaceAll('&amp;', '&')
-    //       .replaceAll("&#039;", "'"),
-    //   }))
-    // },
     setupNewArray(allitems){
       
       this.newitems = []
-      console.log(allitems);
       
       for(let i=0; i<allitems.length;i++){
 
@@ -155,7 +113,6 @@ export default {
         let theimgurl;
 
         if(descriptioninner.search('<img src=') == -1){
-          console.log('allitems - description - search - img src is -1')
           this.isimg = false;
         }
         else
@@ -190,13 +147,6 @@ export default {
           
         //this is the array that the objects are being pushed into
         this.newitems.push(dataobj)
-
-        // console.log('lastindex of is: ' + urlstart)
-        // console.log('urlendindex is: ' + urlendindex)
-        // console.log('theimgurl is: ' + theimgurl)
-        // console.log('description is: ' + allitems[i].querySelector('description').innerHTML)
-        // console.log('description trimmed is: ' + thedescription)
-    
       }
     }
   }

@@ -2,22 +2,28 @@
    <div>
       <p>feed list</p>
       
-      <div v-for="item in items" :key="item">
+      <div v-for="(item, index) in items" :key="index">
         <div v-if="isdata = false">
-          <div @click="sendNewURL(item)">{{item}}</div>
+          <div @click="sendNewURL(item)">no item {{item}}</div>
         </div>
 
-        <div class="feedlist-item" @click="sendNewURL(item.url)" v-else>
+        <div class="feedlist-item" @click="sendNewURL(item.feeddata['data'+index]['groupdetails'+index].url)" v-else>
           <ul>
+            <div>
+              {{item}}<br><br>{{index}}<br><br><br>{{items}}
+            </div>
             <li class="feedlist-item-groupname">
-              {{item.groupname}}
+              {{groupname}}
             </li>
-            <ul>
+            <ul> 
               <li>
                 <div class="feedlist-item-content">
-                  <div class="title">{{item.title}}</div>
-                  <div class="amount">{{item.amount}}</div>
-                </div>
+                  <div>{{index}}</div>
+                    <div class="title">
+                      {{item.feeddata['data'+index]['groupdetails'+index].title}}
+                      </div>
+                    <div class="amount">{{item.feeddata['data'+index]['groupdetails'+index].amount}}</div>
+                  </div>
               </li>
             </ul>
           </ul>
@@ -29,6 +35,7 @@
 <script>
   
 import { mapState } from 'vuex'
+import _ from 'lodash'
 
 export default {
   name: '',
@@ -53,7 +60,6 @@ export default {
       this.savedURLlist = newValue;
     },
     modalNewRssURL(newValue, oldValue){
-      console.log(`updating modalnewrssurl from ${oldValue} to ${newValue}`);
       this.rssUrl = newValue;
       this.sanitizedRssURL = newValue.replace('https://api.allorigins.win/get?url=', '')
       this.getRss(); 
@@ -68,7 +74,7 @@ export default {
     }
   },
   methods:{
-    
+
     sendNewURL(theURL){
       this.$store.dispatch('changeRssURL', theURL)
     },
@@ -80,7 +86,9 @@ export default {
       const { contents } = await res.json();
       const feed = new window.DOMParser().parseFromString(contents, "text/xml");
       const items = feed.querySelectorAll("item");
-
+      
+      console.log('getrss - items is: ' + items)
+      console.log('getrss - items.length is: ' + items.length)
       if(items.length == 0 || items.length == null || items.length < 1){
         this.isdata = false;
       }
@@ -89,44 +97,70 @@ export default {
         //this works, gets the title from the channel node
         const channeltitle = feed.querySelector('channel').querySelector('title').innerHTML;
         
-        let dataobj = {
-          'groupname': this.groupname,
-          groupdetails: {
-            'title': channeltitle,
-            'amount': items.length,
-            'url': this.sanitizedRssURL
-          }
-        }
+        if(this.items.length == 0){
+          console.log('this.items.length is 0')
+          console.log(this.items.length)
+          let thefeed = {
+            feeddata: {
 
-        let i = 0;
-        while(i < this.items.length){
+            }
+          }
           
-          if(this.items[i].groupname === this.groupname){
-            //this is working
+          let data0 = {
+            groupname: this.groupname,
+            groupdetails0: {
+              title: channeltitle,
+              amount: items.length,
+              url: this.sanitizedRssURL
+            }
+          }
+          console.log('------ A ' + JSON.stringify(thefeed))
+          console.log('------ B ' + JSON.stringify(thefeed.feeddata))
+          this.items.push(thefeed)
+          console.log('------ C - items.thefeed is : ' +  JSON.stringify(this.items[0].feeddata));
+          this.items[0].feeddata['data0'] = data0;
+          console.log('------ D - items.thefeed is : ' +  JSON.stringify(this.items[0].feeddata));
+          console.log('------ E - items json.stringified is: ' + JSON.stringify(this.items[0].feeddata['data0']));
+          console.log('------ F - items is now: ' + JSON.stringify(this.items))
+          console.log('------ G - length of feeddata: ' + _.size(this.items[0].feeddata));
+        
+        }
+        
+        let i = 0;
+        console.log('this is working')
+        while(i < _.size(this.items[0].feeddata)){
+          
+          if(this.items[0].feeddata['data' + i].groupname === this.groupname){
+            console.log('groupname for this.items[0] etc is: ' + this.items[0].feeddata['data' + i].groupname)
             let groupdetails = {
-              "title": channeltitle,
-              "amount": items.length,
-              "url": this.sanitizedRssURL
+              title: channeltitle,
+              amount: items.length,
+              url: this.sanitizedRssURL
             }
             
-            this.items[i]['groupdetails' + 2] = groupdetails;
-            
-            /*
-            console.log('----- ' + this.items[i])
-            console.log('items.length is: ' + this.items.length)
-            console.log('how many sub objects ' + Object.keys(this.items[i]).length)
-            console.log('what is going on?')
-            */
+            this.items[0].feeddata['data' +i]['groupdetails'+i] = groupdetails;
+            console.log('------ H - length of feeddata: ' + _.size(this.items[0].feeddata));
+            console.log('------ I - length of feeddata groupdetails: ' + _.size(this.items[0].feeddata['data' + i]));
             break;
           }
           else{
+            let dataobj = {
+              groupname: this.groupname,
+              groupdetails0: {
+                title: channeltitle,
+                amount: items.length,
+                url: this.sanitizedRssURL
+              }
+            }
+            console.log('still working')
+            this.items[0].feeddata['data' + i] = dataobj
             i++
             console.log('i is: ' + i)
+            
           }
         }
         
-        this.items.push(dataobj);
-        //console.log('OUTSIDE OF LOOP: ' + JSON.stringify(this.items));
+        console.log('OUTSIDE OF LOOP - items: ' + JSON.stringify(this.items));
       }
     }
   }
