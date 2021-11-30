@@ -5,7 +5,8 @@ export default createStore({
     newRssURL: "",
     modalNewRssURL: '',
     modalNewRssURLGroupName: '',
-    savedURLS: []
+    savedURLS: [],
+    saveditemslist: []
   },
   mutations: {
     CHANGE_RSS_URL(state, payload){
@@ -17,6 +18,10 @@ export default createStore({
     },
     SAVE_URL(state, payload){
       state.savedURLS = payload;
+    },
+    SAVE_ITEMS_LIST(state, payload){
+      console.log('save items list store - 555555555 ' + payload)
+      state.saveditemslist = payload
     }
   },
   actions: {
@@ -28,6 +33,10 @@ export default createStore({
     },
     saveURL({commit}, id){
       commit('SAVE_URL', id)
+    },
+    saveItemsList({commit}, id){
+      console.log('saveitemslist - store ---5-9549430534953')
+      commit('SAVE_ITEMS_LIST', id)
     }
   },
   modules: {
