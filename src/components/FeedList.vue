@@ -2,27 +2,24 @@
    <div>
       <p>feed list</p>
       
-      <div class="group" v-for="(value, name, parent_index) in testobject" :key="parent_index">
+      <div class="group" v-for="(parent_value, parent_name, parent_index) in testobject" :key="parent_index">
         <div @click='removeItem(parent_index, null)'>
-          <b>{{name}}</b> - track is: {{ value['track'] }}
+          <b>{{parent_name}}</b>
           <br>
           <br>
         </div>
         
-        <div class="sub-group" v-for="(value, name, index) in value" :key="index">
-          <div v-if="index < 1">
+        <div class="sub-group" v-for="(child_value, child_name, child_index) in parent_value" :key="child_index">
+          <div v-if="child_index < 1">
 
           </div>
           <div v-else>
             <div @click="sendNewURL(value.url)">
-              parent index is: {{ parent_index }}
               <br>
-              title is: {{ value['title'] }} - {{ value['amount'] }}
-              <br>
-              sub track is: {{ value['track'] }}
+              {{ child_value['title'] }} - {{ child_value['amount'] }}
             </div>
             <br>
-            <div class="delete-btn" @click="removeItem(parent_index, index)">
+            <div class="delete-btn" @click="removeItem(parent_name, child_name)">
               delete
             </div>
             <br>
@@ -94,11 +91,19 @@ export default {
     sendNewURL(theURL){
       this.$store.dispatch('changeRssURL', theURL)
     },
-    removeItem(parent_index, index) {
-      console.log('parent index is: ' + parent_index)
-      console.log('index is: ' + index)
-      delete this.testobject.q1;
-      console.log('test object is now: ' + this.testobject)
+    //need to work on this function more
+    removeItem(parent_name, child_name) {
+      console.log('parent_name is: ' + parent_name)
+      console.log('child_name is: ' + child_name)
+      //console.log(JSON.stringify(this.testobject[parent_name][child_name]))
+      if(child_name == null){
+        delete this.testobject[parent_name]
+      }
+      else{
+        delete this.testobject[parent_name][child_name];
+      }
+      console.log('################################')
+      console.log(JSON.stringify(this.testobject))
     },
     async getRss(){
       const res = await fetch(
