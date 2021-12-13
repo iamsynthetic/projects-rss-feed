@@ -2,28 +2,28 @@
    <div>
       <p>feed list</p>
       
-      <div class="group" v-for="(parent_value, parent_name, parent_index) in testobject" :key="parent_index">
+      <div class="group" v-for="(parent_value, parent_name, parent_index) in testobject" :key="parent_index" :user="parent_value">
         <div @click='removeItem(parent_index, null)'>
-          <b>{{parent_name}}</b>
-          <br>
-          <br>
+           <span class="sub-menu" @click="parent_value.visible = !parent_value.visible"></span> <span>{{parent_name}}</span>
         </div>
         
         <div class="sub-group" v-for="(child_value, child_name, child_index) in parent_value" :key="child_index">
-          <div v-if="child_index < 1">
-
-          </div>
-          <div v-else>
-            <div @click="sendNewURL(value.url)">
-              <br>
-              {{ child_value['title'] }} - {{ child_value['amount'] }}
+          <!--
+            
+          -->
+          <div v-show="parent_value.visible">
+            <div v-if="child_index < 1">
             </div>
-            <br>
-            <div class="delete-btn" @click="removeItem(parent_name, child_name)">
-              delete
+            <div v-else>
+              <div>child_index is: {{ child_index}}</div>
+              <div @click="sendNewURL(value.url)">
+                {{ child_value['title'] }} - {{ child_value['amount'] }}
+                {{ parent_name }}
+              </div>
+              <div class="delete-btn" @click="removeItem(parent_name, child_name)">
+                delete
+              </div>
             </div>
-            <br>
-            <br>
           </div>
         </div>
       </div>
@@ -34,6 +34,7 @@
   
 import { mapState } from 'vuex'
 import _ from 'lodash'
+import { defineComponent, ref } from 'vue'
 
 export default {
   name: '',
@@ -54,7 +55,8 @@ export default {
       isData: true,
       i: 0,
       count: 0,
-      changenum: 0
+      changenum: 0,
+      theid: ''
     }
   },
   mounted(){
@@ -87,6 +89,18 @@ export default {
     }
   },
   methods:{
+    myFilter(id, key){
+      console.log("ma filter")
+      console.log('the id is: ' + id)
+      console.log('the key is: ' + key)
+      this.theid = id;
+      this.isActive = !this.isActive;
+      console.log('isActive is: ' + this.isActive)
+    },
+    computeditem(index){
+      console.log('parent_index is: ' + index)
+      return true
+    },
 
     sendNewURL(theURL){
       this.$store.dispatch('changeRssURL', theURL)
@@ -207,12 +221,200 @@ export default {
 
 <style>
 
+
+/** {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+body {
+    font-family: sans-serif;
+    font-size: 16px;
+}
+nav {
+    background: #222;
+    padding: 0 15px;
+}
+a {
+    color: white;
+    text-decoration: none;
+}
+.menu,
+.submenu {   
+    list-style-type: none;
+}
+.logo {
+    font-size: 20px;
+    padding: 7.5px 10px 7.5px 0;
+}
+.item {
+    padding: 10px;
+}
+.item.button {
+    padding: 9px 5px;
+}
+.item:not(.button) a:hover,
+.item a:hover::after {
+    color: #ccc;
+}
+
+
+.menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+.menu li a {
+    display: block;
+    padding: 15px 5px;
+}
+.menu li.subitem a {
+    padding: 15px;
+}
+.toggle {
+    order: 1;
+    font-size: 20px;
+}
+.item.button {
+    order: 2;
+}
+.item {
+    order: 3;
+    width: 100%;
+    text-align: center;
+    display: none;
+}
+.active .item {
+    display: block;
+}
+.button.secondary {
+    border-bottom: 1px #444 solid;
+}
+
+
+
+.submenu {
+    display: none;
+}
+.submenu-active .submenu {
+   display: block;
+}
+.has-submenu i {
+    font-size: 12px;
+}
+.has-submenu > a::after {
+    font-family: "Font Awesome 5 Free";
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 900; 
+    content: "\f078";
+    color: white;
+    padding-left: 5px;
+}
+.subitem a {
+    padding: 10px 15px;
+}
+.submenu-active {
+    background-color: #111;
+    border-radius: 3px;
+}
+
+@media all and (min-width: 700px) {
+    .menu {
+        justify-content: center;
+    }
+    .logo {
+        flex: 1;
+    }
+    .item.button {
+        width: auto;
+        order: 1;
+        display: block;
+    }
+    .toggle {
+        flex: 1;
+        text-align: right;
+        order: 2;
+    }
+    .menu li.button a {
+        padding: 10px 15px;
+        margin: 5px 0;
+    }
+    .button a {
+        background: #0080ff;
+        border: 1px royalblue solid;
+    }
+    .button.secondary {
+        border: 0;
+    }
+    .button.secondary a {
+        background: transparent;
+        border: 1px #0080ff solid;  
+    }
+    .button a:hover {
+        text-decoration: none;
+    }
+    .button:not(.secondary) a:hover {
+        background: royalblue;
+        border-color: darkblue;
+    }
+}
+
+
+
+@media all and (min-width: 960px) {
+    .menu {
+        align-items: flex-start;     
+        flex-wrap: nowrap;
+        background: none;
+    }
+    .logo {
+        order: 0;
+    }
+    .item {
+        order: 1;
+        position: relative;
+        display: block; 
+        width: auto;
+    }
+    .button {
+        order: 2;
+    }
+    .submenu-active .submenu {
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 68px;
+        background: #111;
+    }
+    .toggle {
+        display: none;
+    }
+    .submenu-active {
+        border-radius: 0;
+    }
+}
+*/
+
+
+.sub-menu::after {
+  content: "> ";
+  color: green;
+}
+
 .group{
   text-align: left;
-  margin-bottom: 30px;
+  margin-left: 20px;
+  font-size: 14px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 700;
 }
 .sub-group{
   margin-left: 30px;
+  padding-bottom: 10px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 400;
 }
 
 .delete-btn{
