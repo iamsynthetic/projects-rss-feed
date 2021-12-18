@@ -1,10 +1,11 @@
 <template>
    <div>
       <p>feed list</p>
-      
       <div class="group" v-for="(parent_value, parent_name, parent_index) in testobject" :key="parent_index">
         <div @click='removeItem(parent_index, null)'>
-           <span class="sub-menu" @click="parent_value.visible = !parent_value.visible"></span> <span>{{parent_name}}</span>
+          <!-- <BootstrapIcon icon="chevron-right" @click="parent_value.visible = !parent_value.visible"/> -->
+          <BootstrapIcon class="bootstrap-chevron-right" :class="rotatedState" icon="chevron-right" @click='chevronfunc(parent_value)'/>
+          <span>{{parent_name}}</span>
         </div>
         
         <div class="sub-group" v-for="(child_value, child_name, child_index) in parent_value" :key="child_index">
@@ -13,7 +14,7 @@
             <div v-if="child_index < 1"></div>
             <div v-if="child_name == 'visible' || child_name == 'track' "></div>
             <div v-else>
-              <div @click="sendNewURL(value.url)">
+              <div class="feed-name" @click="sendNewURL(child_value.url)">
                 {{ child_value['title'] }} - {{ child_value['amount'] }}
               </div>
               <div class="delete-btn" @click="removeItem(parent_name, child_name)">delete</div>
@@ -50,14 +51,18 @@ export default {
       i: 0,
       count: 0,
       changenum: 0,
-      theid: ''
+      theid: '',
+      navActive: false
     }
   },
   mounted(){
     this.savedURLlist = this.$store.state.savedURLS;
   },
   computed: {
-    ...mapState(['modalNewRssURL','modalNewRssURLGroupName','savedURLS', 'saveditemslist'])
+    ...mapState(['modalNewRssURL','modalNewRssURLGroupName','savedURLS', 'saveditemslist']),
+    rotatedState() {
+      return this.navActive ? 'nav--active' : 'nav--inactive';
+    },
   },
   watch: {
     saveditemslist(newValue, oldValue){
@@ -83,6 +88,11 @@ export default {
     }
   },
   methods:{
+    chevronfunc(parent_value){
+      console.log('parent_value is: ' + parent_value)
+      parent_value.visible = !parent_value.visible
+      this.navActive = !this.navActive;
+    },
     myFilter(id, key){
       this.theid = id;
       this.isActive = !this.isActive;
@@ -179,26 +189,34 @@ export default {
 
 <style>
 
-
-.sub-menu::after {
-  content: "> ";
-  color: green;
+.nav--active {
+  transform-origin: left;
+  transform: translate(40%, -50%) rotate(90deg) ;
 }
-
+.nav--inactive {
+  transform: rotateZ(0deg);
+}
+.bootstrap-chevron-right{
+  color: #595959;
+  margin-right: 4px;
+  cursor: pointer;
+}
 .group{
   text-align: left;
   margin-left: 20px;
   font-size: 14px;
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Archivo Narrow', sans-serif;
   font-weight: 700;
 }
 .sub-group{
   margin-left: 30px;
   padding-bottom: 10px;
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Archivo Narrow', sans-serif;
   font-weight: 400;
 }
-
+.feed-name{
+  cursor: pointer;
+}
 .delete-btn{
   cursor: pointer;
   background-color: blue;
