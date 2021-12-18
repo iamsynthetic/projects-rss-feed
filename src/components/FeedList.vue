@@ -2,7 +2,7 @@
    <div>
       <p>feed list</p>
       <div class="group" v-for="(parent_value, parent_name, parent_index) in testobject" :key="parent_index">
-        <div @click='removeItem(parent_index, null)'>
+        <div :class="categoryHighlightState" @mouseover='showHighlight("categoryHighlightActive")' @mouseout='hideHighlight("categoryHighlightActive")' @click='removeItem(parent_index, null)'>
           <!-- <BootstrapIcon icon="chevron-right" @click="parent_value.visible = !parent_value.visible"/> -->
           <BootstrapIcon class="bootstrap-chevron-right" :class="rotatedState" icon="chevron-right" @click='chevronfunc(parent_value)'/>
           <span>{{parent_name}}</span>
@@ -14,7 +14,7 @@
             <div v-if="child_index < 1"></div>
             <div v-if="child_name == 'visible' || child_name == 'track' "></div>
             <div v-else>
-              <div class="feed-name" @click="sendNewURL(child_value.url)">
+              <div class="feed-name" :class="feedHighlightState" @mouseover='showHighlight("feedHighlightActive")' @mouseout='hideHighlight("feedHighlightActive")' @click="sendNewURL(child_value.url)">
                 {{ child_value['title'] }} - {{ child_value['amount'] }}
               </div>
               <div class="delete-btn" @click="removeItem(parent_name, child_name)">delete</div>
@@ -52,7 +52,9 @@ export default {
       count: 0,
       changenum: 0,
       theid: '',
-      navActive: false
+      navActive: false,
+      categoryHighlightActive: false,
+      feedHighlightActive: false
     }
   },
   mounted(){
@@ -63,6 +65,12 @@ export default {
     rotatedState() {
       return this.navActive ? 'nav--active' : 'nav--inactive';
     },
+    categoryHighlightState() {
+      return this.categoryHighlightActive ? 'highlight--active' : 'highlight--inactive';
+    },
+    feedHighlightState() {
+      return this.feedHighlightActive ? 'highlight--active' : 'highlight--inactive';
+    }
   },
   watch: {
     saveditemslist(newValue, oldValue){
@@ -93,14 +101,24 @@ export default {
       parent_value.visible = !parent_value.visible
       this.navActive = !this.navActive;
     },
-    myFilter(id, key){
-      this.theid = id;
-      this.isActive = !this.isActive;
+    showHighlight(highlight){
+      console.log(highlight)
+      if(highlight == 'categoryHighlightActive'){
+        this.categoryHighlightActive = true
+      }
+      else{
+        this.feedHighlightActive = true
+      }
     },
-    computeditem(index){
-      return true
+    hideHighlight(highlight){
+      console.log(highlight)
+      if(highlight == 'categoryHighlightActive'){
+        this.categoryHighlightActive = false
+      }
+      else{
+        this.feedHighlightActive = false
+      }
     },
-
     sendNewURL(theURL){
       this.$store.dispatch('changeRssURL', theURL)
     },
@@ -195,6 +213,14 @@ export default {
 }
 .nav--inactive {
   transform: rotateZ(0deg);
+}
+.highlight--active {
+  cursor: pointer;
+  background-color: #96D1EB;
+  color: black;
+}
+.highlight--inactive {
+  background-color: none;
 }
 .bootstrap-chevron-right{
   color: #595959;
