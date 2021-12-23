@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="home" @click="removeRightClickMenu()">
     <div class="main-menu">
       <mainmenu></mainmenu>
     </div>
@@ -30,7 +30,7 @@ export default {
     feedoutput
   },
   computed: {
-      ...mapState(['newRssURL'])
+      ...mapState(['newRssURL', 'contextnav'])
   },
   watch:{
     newRssURL(newValue, oldValue){
@@ -43,9 +43,17 @@ export default {
         }
         console.log('componentkey is: ' + this.componentkey);
       }
+    },
+    contextnav(newValue, oldValue){
+      console.log('HOME - ---- OIBNAOIDNGDOGIN')
+      console.log(newValue);
+      console.log(oldValue)
     }
   },
   methods:{
+    removeRightClickMenu(){
+      this.$store.dispatch('removeTheRightClickNav', 'close')
+    }
   }
 }
 </script>

@@ -13,7 +13,7 @@
     "bootstrap-icons-vue": "^0.8.0",
     "core-js": "^3.6.5",
     "lodash": "^4.17.21",
-    "vue": "^3.0.0",
+    "vue": "^3.2.26",
     "vue-router": "^4.0.12",
     "vuex": "^4.0.2"
   },
@@ -23,8 +23,8 @@
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "^3.0.0",
-    "node-sass": "^4.12.0",
-    "sass-loader": "^8.0.2"
+    "node-sass": "^4.14.1",
+    "sass-loader": "^10.1.1"
   },
   "browserslist": [
     "> 1%",

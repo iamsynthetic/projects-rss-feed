@@ -2,9 +2,14 @@
    <div>
       <p>feed list</p>
       <div class="group" v-for="(parent_value, parent_name, parent_index) in testobject" :key="parent_index">
-        <div :class="categoryHighlightState" @mouseover='showHighlight("categoryHighlightActive")' @mouseout='hideHighlight("categoryHighlightActive")' @click='removeItem(parent_index, null)'>
-          <!-- <BootstrapIcon icon="chevron-right" @click="parent_value.visible = !parent_value.visible"/> -->
-          <BootstrapIcon class="bootstrap-chevron-right" :class="rotatedState" icon="chevron-right" @click='chevronfunc(parent_value)'/>
+        <div :class="categoryHighlightState" 
+              @mouseover='showHighlight("categoryHighlightActive")' 
+              @mouseout='hideHighlight("categoryHighlightActive")' 
+              @click='removeItem(parent_index, null)'
+              @contextmenu.prevent="handler">
+          <BootstrapIcon class="bootstrap-chevron-right" :class="rotatedState" icon="chevron-right" 
+              @click='chevronfunc(parent_value)'/>
+
           <span>{{parent_name}}</span>
         </div>
         
@@ -14,23 +19,37 @@
             <div v-if="child_index < 1"></div>
             <div v-if="child_name == 'visible' || child_name == 'track' "></div>
             <div v-else>
-              <div class="feed-name" :class="feedHighlightState" @mouseover='showHighlight("feedHighlightActive")' @mouseout='hideHighlight("feedHighlightActive")' @click="sendNewURL(child_value.url)">
-                {{ child_value['title'] }} - {{ child_value['amount'] }}
+              <div class="row">
+                <div class="feed-name column" :class="feedHighlightState" @mouseover='showHighlight("feedHighlightActive")' @mouseout='hideHighlight("feedHighlightActive")' @click="sendNewURL(child_value.url)">
+                  <div class="left-column">
+                    {{ child_value['title'] }}
+                  </div>
+                </div>
+
+                <div class="feed-name column" :class="feedHighlightState" @mouseover='showHighlight("feedHighlightActive")' @mouseout='hideHighlight("feedHighlightActive")' @click="sendNewURL(child_value.url)">
+                  <div class="right-column">
+                    {{ child_value['amount'] }}
+                  </div>
+                </div>
               </div>
               <div class="delete-btn" @click="removeItem(parent_name, child_name)">delete</div>
             </div>
           </div>
         </div>
+
+        <ul id="right-click-menu" tabindex="-1" v-if="viewMenu" v-on:blur="closeMenu">
+            <li>First list item</li>
+            <li>Second list item</li>
+        </ul>
+
       </div>
    </div>
 </template>
 
 <script>
   
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import _ from 'lodash'
-import { defineComponent, ref } from 'vue'
-
 export default {
   name: '',
   data(){
@@ -54,14 +73,16 @@ export default {
       theid: '',
       navActive: false,
       categoryHighlightActive: false,
-      feedHighlightActive: false
+      feedHighlightActive: false,
+      viewMenu: false,
+      removethenav: false
     }
   },
   mounted(){
     this.savedURLlist = this.$store.state.savedURLS;
   },
   computed: {
-    ...mapState(['modalNewRssURL','modalNewRssURLGroupName','savedURLS', 'saveditemslist']),
+    ...mapState(['modalNewRssURL','modalNewRssURLGroupName','savedURLS', 'saveditemslist', 'contextnav']),
     rotatedState() {
       return this.navActive ? 'nav--active' : 'nav--inactive';
     },
@@ -93,9 +114,37 @@ export default {
       else{
         this.groupname = newValue
       }
+    },
+    contextnav(newValue, oldValue){
+      console.log('rightclick - new value is: ' + newValue)
+      console.log('rightclick - old value is: ' + oldValue)
+      if(newValue == 'close'){
+        console.log('closemenu()')
+        this.closeMenu()
+      }
+      else if(newValue == 'open'){
+        console.log('handler')
+        this.handler()
+      }
     }
+    // removeRightClickNav(newValue, oldValue){
+    //   console.log('remove the right click - newValue iso giengoingwoigen: ' + newValue)
+    //   // this.removethenav = newValue
+    //   // this.closeMenu();
+    // }
   },
   methods:{
+    handler() {
+      console.log('context menu opened')
+      //console.log(e)
+      //e.preventDefault();
+      this.viewMenu = true;
+      this.$store.dispatch('addTheRightClickNav', 'open')
+    },
+    closeMenu() {
+      console.log('context menu closed')
+      this.viewMenu = false;
+    },
     chevronfunc(parent_value){
       console.log('parent_value is: ' + parent_value)
       parent_value.visible = !parent_value.visible
@@ -240,6 +289,28 @@ export default {
   font-family: 'Archivo Narrow', sans-serif;
   font-weight: 400;
 }
+
+.row{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.column{
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
+}
+.left-column{
+  background-color:null;
+}
+.right-column{
+  /*background-color: green;*/
+  margin-left: auto;
+  margin-right: 20px;
+  color: #8C8C8C;
+}
 .feed-name{
   cursor: pointer;
 }
@@ -254,6 +325,34 @@ export default {
   display: inline-block;
   font-size: 10px;
   margin: 4px 2px;
+}
+#right-click-menu{
+    background: #FAFAFA;
+    border: 1px solid #BDBDBD;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
+    display: block;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    width: 250px;
+    z-index: 999999;
+    top: -85px;
+}
+
+#right-click-menu li {
+    border-bottom: 1px solid #E0E0E0;
+    margin: 0;
+    padding: 5px 35px;
+}
+
+#right-click-menu li:last-child {
+    border-bottom: none;
+}
+
+#right-click-menu li:hover {
+    background: #1E88E5;
+    color: #FAFAFA;
 }
 
 /*
