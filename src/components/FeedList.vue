@@ -6,7 +6,7 @@
               @mouseover='showHighlight("categoryHighlightActive")' 
               @mouseout='hideHighlight("categoryHighlightActive")' 
               @click='removeItem(parent_index, null)'
-              @contextmenu.prevent="handler">
+              @contextmenu="doHandlerGroup($event)">
           <BootstrapIcon class="bootstrap-chevron-right" :class="rotatedState" icon="chevron-right" 
               @click='chevronfunc(parent_value)'/>
 
@@ -20,26 +20,47 @@
             <div v-if="child_name == 'visible' || child_name == 'track' "></div>
             <div v-else>
               <div class="row">
-                <div class="feed-name column" :class="feedHighlightState" @mouseover='showHighlight("feedHighlightActive")' @mouseout='hideHighlight("feedHighlightActive")' @click="sendNewURL(child_value.url)">
+                <div class="feed-name column" :class="feedHighlightState" 
+                @mouseover='showHighlight("feedHighlightActive")'
+                @mouseout='hideHighlight("feedHighlightActive")' 
+                @click="sendNewURL(child_value.url)" 
+                
+                @contextmenu="doHandlerSubGroup($event)">
                   <div class="left-column">
                     {{ child_value['title'] }}
                   </div>
                 </div>
-
-                <div class="feed-name column" :class="feedHighlightState" @mouseover='showHighlight("feedHighlightActive")' @mouseout='hideHighlight("feedHighlightActive")' @click="sendNewURL(child_value.url)">
+                <!--@contextmenu.prevent="handler"-->
+                <div class="feed-name column" :class="feedHighlightState" 
+                @mouseover='showHighlight("feedHighlightActive")' 
+                @mouseout='hideHighlight("feedHighlightActive")' 
+                @click="sendNewURL(child_value.url)" 
+                
+                @contextmenu="doHandlerSubGroup($event)">
                   <div class="right-column">
                     {{ child_value['amount'] }}
                   </div>
                 </div>
               </div>
-              <div class="delete-btn" @click="removeItem(parent_name, child_name)">delete</div>
             </div>
           </div>
-        </div>
 
-        <ul id="right-click-menu" tabindex="-1" v-if="viewMenu" v-on:blur="closeMenu">
-            <li>First list item</li>
-            <li>Second list item</li>
+          <ul id="sub-group-right-click-menu" :class="markerInfoStyle" tabindex="-1" v-show="showSubGroupRightClick" v-on:blur="closeMenu">
+            <li class="right-click-sub-group">First list item</li>
+            <li class="right-click-sub-group">Second list item</li>
+            <li class="right-click-sub-group">
+              <div class="delete-btn" @click="removeItem(child_name)">delete</div>
+            </li>
+          </ul>
+
+        </div>
+      
+        <ul id="group-right-click-menu" :class="markerInfoStyle" tabindex="-1" v-show="showGroupRightClick" v-on:blur="closeMenu">
+          <li class="right-click-sub-group">First list item</li>
+          <li class="right-click-sub-group">Second list item</li>
+          <li class="right-click-sub-group">
+            <div class="delete-btn" @click="removeItem(parent_name)">delete</div>
+          </li>
         </ul>
 
       </div>
@@ -74,12 +95,21 @@ export default {
       navActive: false,
       categoryHighlightActive: false,
       feedHighlightActive: false,
-      viewMenu: false,
-      removethenav: false
+      showSubGroupRightClick: false,
+      showGroupRightClick:false,
+      removethenav: false,
+      mousex: 0,
+      mousey: 0,
+       contextMenuWidth: null,
+    contextMenuHeight: null
     }
   },
   mounted(){
     this.savedURLlist = this.$store.state.savedURLS;
+     document.addEventListener("mousemove", (event) => {
+      this.mousex = event.clientX; // Gets Mouse X
+      this.mousey = event.clientY; // Gets Mouse Y
+    })
   },
   computed: {
     ...mapState(['modalNewRssURL','modalNewRssURLGroupName','savedURLS', 'saveditemslist', 'contextnav']),
@@ -91,6 +121,12 @@ export default {
     },
     feedHighlightState() {
       return this.feedHighlightActive ? 'highlight--active' : 'highlight--inactive';
+    },
+    markerInfoStyle(){
+      return {
+        left: this.mousex + 'px',
+        top: this.mousey + 'px'
+      }
     }
   },
   watch: {
@@ -116,34 +152,49 @@ export default {
       }
     },
     contextnav(newValue, oldValue){
-      console.log('rightclick - new value is: ' + newValue)
-      console.log('rightclick - old value is: ' + oldValue)
+      // console.log('rightclick - new value is: ' + newValue)
+      // console.log('rightclick - old value is: ' + oldValue)
       if(newValue == 'close'){
-        console.log('closemenu()')
+        //console.log('closemenu()')
         this.closeMenu()
       }
-      else if(newValue == 'open'){
-        console.log('handler')
-        this.handler()
-      }
+      // else if(newValue == 'open'){
+      //   this.$store.dispatch('addTheRightClickNav', 'open')
+      // }
     }
-    // removeRightClickNav(newValue, oldValue){
-    //   console.log('remove the right click - newValue iso giengoingwoigen: ' + newValue)
-    //   // this.removethenav = newValue
-    //   // this.closeMenu();
-    // }
   },
   methods:{
-    handler() {
-      console.log('context menu opened')
-      //console.log(e)
-      //e.preventDefault();
-      this.viewMenu = true;
+
+    doHandlerGroup(e){
+      //do stuff
+      e.preventDefault();
+      // console.log('doHandler')
+      // console.log(e);
+      this.showGroupRightClick = true;
+      let menu = document.getElementById('group-right-click-menu');
+      // console.log('blah is: ' + blah.name)
+      menu.style.left = e.x + 'px';
+      menu.style.top = e.y + 'px';
+
+      // console.log('blah.style.left is: ' + blah.style.left)
+      // console.log('blah.style.top is: ' + blah.style.top)
+      
+      this.$store.dispatch('addTheRightClickNav', 'open')
+     
+    },
+    doHandlerSubGroup(e){
+      e.preventDefault();
+      this.showSubGroupRightClick = true;
+      this.showGroupRightClick = false;
+      let menu = document.getElementById('sub-group-right-click-menu');
+      menu.style.left = e.x + 'px';
+      menu.style.top = e.y + 'px';
       this.$store.dispatch('addTheRightClickNav', 'open')
     },
     closeMenu() {
       console.log('context menu closed')
-      this.viewMenu = false;
+      this.showGroupRightClick = false;
+      this.showSubGroupRightClick = false;
     },
     chevronfunc(parent_value){
       console.log('parent_value is: ' + parent_value)
@@ -173,6 +224,9 @@ export default {
     },
     //need to work on this function more
     removeItem(parent_name, child_name) {
+      console.log('parent_name is: ' + parent_name)
+      console.log('child name is: ' + child_name)
+      console.log('23902930293092329309320932090320293')
       if(child_name == null){
         delete this.testobject[parent_name]
       }
@@ -314,45 +368,54 @@ export default {
 .feed-name{
   cursor: pointer;
 }
-.delete-btn{
-  cursor: pointer;
-  background-color: blue;
-  border: none;
-  color: white;
-  padding: 10px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 10px;
-  margin: 4px 2px;
-}
-#right-click-menu{
+#group-right-click-menu, #sub-group-right-click-menu{
     background: #FAFAFA;
     border: 1px solid #BDBDBD;
-    box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
+    border-radius:4px;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
     display: block;
     list-style: none;
     margin: 0;
     padding: 0;
-    position: relative;
-    width: 250px;
+    position: absolute;
+    width: 200px;
     z-index: 999999;
-    top: -85px;
+    /* top: -20px; */
 }
 
-#right-click-menu li {
-    border-bottom: 1px solid #E0E0E0;
+.right-click-sub-group{
+  font-family: 'Archivo Narrow', sans-serif;
+  font-weight: 400;
+}
+
+#group-right-click-menu li, #sub-group-right-click-menu li {
+    /* border-bottom: 1px solid #E0E0E0; */
     margin: 0;
-    padding: 5px 35px;
+    padding: 8px 35px;
 }
 
-#right-click-menu li:last-child {
-    border-bottom: none;
+#group-right-click-menu li:nth-last-child(2), #sub-group-right-click-menu li:nth-last-child(2){
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-#right-click-menu li:hover {
-    background: #1E88E5;
-    color: #FAFAFA;
+#group-right-click-menu li:hover, #sub-group-right-click-menu li:hover {
+  cursor: pointer;
+  background-color: #96D1EB;
+}
+
+.delete-btn{
+  cursor: pointer;
+  color:red;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  font-family: 'Archivo Narrow', sans-serif;
+  font-weight: 400;
+  width:130px;
+  height: 34px;
+  top: 8px;
+  position: relative;
 }
 
 /*

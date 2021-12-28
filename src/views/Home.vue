@@ -1,5 +1,5 @@
 <template>
-  <div class="home" @click="removeRightClickMenu()">
+  <div class="home">
     <div class="main-menu">
       <mainmenu></mainmenu>
     </div>
@@ -7,7 +7,6 @@
       <rssfeedsearch></rssfeedsearch>
       <feedoutput key="componentkey"></feedoutput>  
     </div>
-    
   </div>
 </template>
 
@@ -43,12 +42,8 @@ export default {
         }
         console.log('componentkey is: ' + this.componentkey);
       }
-    },
-    contextnav(newValue, oldValue){
-      console.log('HOME - ---- OIBNAOIDNGDOGIN')
-      console.log(newValue);
-      console.log(oldValue)
     }
+   
   },
   methods:{
     removeRightClickMenu(){
